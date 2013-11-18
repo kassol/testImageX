@@ -45,4 +45,16 @@ protected:
 	// 用于为搜索处理程序设置搜索内容的 Helper 函数
 	void SetSearchContent(const CString& value);
 #endif // SHARED_HANDLERS
+
+private:
+	IImage* m_pImage;
+	CString m_strImagePath;
+public:
+	int m_nWidth;
+	int m_nHeight;
+	int m_nBandNum;
+	BYTE* m_pBuf;
+	bool m_bIsReady;
+public:
+	afx_msg void OnFileOpen();
 };

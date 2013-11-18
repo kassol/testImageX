@@ -105,6 +105,8 @@ BOOL CtestImageXApp::InitInstance()
 	m_pMainWnd->UpdateWindow();
 	// 仅当具有后缀时才调用 DragAcceptFiles
 	//  在 SDI 应用程序中，这应在 ProcessShellCommand 之后发生
+
+	CoInitialize(NULL);
 	return TRUE;
 }
 
@@ -152,3 +154,11 @@ void CtestImageXApp::OnAppAbout()
 
 
 
+
+
+int CtestImageXApp::ExitInstance()
+{
+	// TODO: Add your specialized code here and/or call the base class
+	CoUninitialize();
+	return CWinApp::ExitInstance();
+}

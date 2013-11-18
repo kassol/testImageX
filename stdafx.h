@@ -40,7 +40,7 @@
 
 
 
-
+#import "ImageX.tlb" no_namespace, named_guids
 
 
 

@@ -22,6 +22,7 @@
 IMPLEMENT_DYNCREATE(CtestImageXDoc, CDocument)
 
 BEGIN_MESSAGE_MAP(CtestImageXDoc, CDocument)
+	ON_COMMAND(ID_FILE_OPEN, &CtestImageXDoc::OnFileOpen)
 END_MESSAGE_MAP()
 
 
@@ -30,7 +31,8 @@ END_MESSAGE_MAP()
 CtestImageXDoc::CtestImageXDoc()
 {
 	// TODO: 在此添加一次性构造代码
-
+	m_pBuf = NULL;
+	m_bIsReady = false;
 }
 
 CtestImageXDoc::~CtestImageXDoc()
@@ -135,3 +137,46 @@ void CtestImageXDoc::Dump(CDumpContext& dc) const
 
 
 // CtestImageXDoc 命令
+
+
+void CtestImageXDoc::OnFileOpen()
+{
+	// TODO: Add your command handler code here
+	m_bIsReady = false;
+	HRESULT hr = CoCreateInstance(CLSID_ImageDriver, NULL, CLSCTX_ALL, IID_IImage, (void**)&m_pImage);
+	if (FAILED(hr))
+	{
+		AfxMessageBox(_T("组件注册失败！"));
+		return;
+	}
+	USES_CONVERSION;
+	BYTE* szFilterName = new BYTE[500];
+	m_pImage->GetSupExts(szFilterName, modeRead);
+
+	CString strFilterName;
+	strFilterName.Format(_T("%s"), A2T((char*)szFilterName));
+
+	CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY, strFilterName, NULL);
+	if (IDOK == dlg.DoModal())
+	{
+		m_strImagePath = dlg.GetPathName();
+		m_pImage->Open(m_strImagePath.AllocSysString(), modeRead|modeAqlut);
+		m_pImage->GetBandNum(&m_nBandNum);
+		m_pImage->GetCols(&m_nWidth);
+		m_pImage->GetRows(&m_nHeight);
+		if (m_pBuf != NULL)
+		{
+			delete []m_pBuf;
+			m_pBuf = NULL;
+		}
+		m_pBuf = new BYTE[m_nWidth*m_nHeight*3];
+		m_pImage->ReadImg(0, 0, m_nWidth, m_nHeight, m_pBuf, 
+			m_nWidth, m_nHeight, 3, 0, 0, m_nWidth, m_nHeight, 0, 2);
+		m_pImage->ReadImg(0, 0, m_nWidth, m_nHeight, m_pBuf, 
+			m_nWidth, m_nHeight, 3, 0, 0, m_nWidth, m_nHeight, 1, 1);
+		m_pImage->ReadImg(0, 0, m_nWidth, m_nHeight, m_pBuf, 
+			m_nWidth, m_nHeight, 3, 0, 0, m_nWidth, m_nHeight, 2, 0);
+		m_bIsReady = true;
+		UpdateAllViews(NULL);
+	}
+}
