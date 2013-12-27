@@ -62,38 +62,32 @@ void CtestImageXView::OnDraw(CDC* pDC)
 		sizeTotal.cy = pDoc->m_nHeight;
 		SetScrollSizes(MM_TEXT, sizeTotal);
 		LONG LineBytes;
+		LineBytes = (pDoc->m_nWidth+3)/4*4;
 		BITMAPINFO* m_pBitmapInfo = (BITMAPINFO*)new char[sizeof(BITMAPINFO)];
 		m_pBitmapInfo->bmiHeader.biClrUsed = 0;
-		m_pBitmapInfo->bmiHeader.biBitCount = 24;
+		m_pBitmapInfo->bmiHeader.biBitCount = 8;
 		m_pBitmapInfo->bmiHeader.biClrImportant = 0;
-		m_pBitmapInfo->bmiHeader.biCompression = BI_RGB;
+		m_pBitmapInfo->bmiHeader.biCompression = 0;
 		m_pBitmapInfo->bmiHeader.biWidth = pDoc->m_nWidth;
 		m_pBitmapInfo->bmiHeader.biHeight = pDoc->m_nHeight;
 		m_pBitmapInfo->bmiHeader.biPlanes = 1;
 		m_pBitmapInfo->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-		m_pBitmapInfo->bmiHeader.biSizeImage = (pDoc->m_nWidth*24+31)/32*4*pDoc->m_nHeight;
+		m_pBitmapInfo->bmiHeader.biSizeImage = pDoc->m_nHeight*LineBytes;
 		m_pBitmapInfo->bmiHeader.biXPelsPerMeter = 0;	
 		m_pBitmapInfo->bmiHeader.biYPelsPerMeter = 0;
 
-		LineBytes = (pDoc->m_nWidth*24 + 31)/32*4;
-
-		CDC dcMem;
-		CBitmap bmp;
-		dcMem.CreateCompatibleDC(pDC);
-		bmp.CreateCompatibleBitmap(pDC, pDoc->m_nWidth, pDoc->m_nHeight);
-		BYTE* pBuf;
-		HBITMAP hbitmap = CreateDIBSection(NULL, m_pBitmapInfo, DIB_RGB_COLORS, (void**)&pBuf, NULL, 0);
-		for (int y = 0; y <pDoc->m_nHeight; ++y)
+		for (int i = 0; i < 256; ++i)
 		{
-			memcpy(pBuf+y*LineBytes, pDoc->m_pBuf+y*pDoc->m_nWidth*3, pDoc->m_nWidth*3);
+			m_pBitmapInfo->bmiColors[i].rgbBlue = i;
+			m_pBitmapInfo->bmiColors[i].rgbGreen = i;
+			m_pBitmapInfo->bmiColors[i].rgbRed = i;
+			m_pBitmapInfo->bmiColors[i].rgbReserved = 0;
 		}
-		HBITMAP holdmap = (HBITMAP)dcMem.SelectObject(hbitmap);
-		pDC->StretchBlt(0, 0, pDoc->m_nWidth, pDoc->m_nHeight, &dcMem, 0, 0, 
-			m_pBitmapInfo->bmiHeader.biWidth, m_pBitmapInfo->bmiHeader.biHeight, SRCCOPY);
-		dcMem.SelectObject(holdmap);
-		dcMem.DeleteDC();
-		bmp.DeleteObject();
-		DeleteObject(hbitmap);
+		
+		StretchDIBits(pDC->GetSafeHdc(), 0, 0, m_pBitmapInfo->bmiHeader.biWidth,
+			m_pBitmapInfo->bmiHeader.biHeight, 0, 0, m_pBitmapInfo->bmiHeader.biWidth,
+			m_pBitmapInfo->bmiHeader.biHeight, pDoc->m_pBuf, m_pBitmapInfo, 
+			DIB_RGB_COLORS, SRCCOPY);
 	}
 	else
 	{

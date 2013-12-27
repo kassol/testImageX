@@ -47,7 +47,7 @@ protected:
 #endif // SHARED_HANDLERS
 
 private:
-	IImage* m_pImage;
+	IImageX* m_pImage;
 	CString m_strImagePath;
 public:
 	int m_nWidth;

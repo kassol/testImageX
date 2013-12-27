@@ -143,7 +143,7 @@ void CtestImageXDoc::OnFileOpen()
 {
 	// TODO: Add your command handler code here
 	m_bIsReady = false;
-	HRESULT hr = CoCreateInstance(CLSID_ImageDriver, NULL, CLSCTX_ALL, IID_IImage, (void**)&m_pImage);
+	HRESULT hr = CoCreateInstance(CLSID_ImageDriverX, NULL, CLSCTX_ALL, IID_IImageX, (void**)&m_pImage);
 	if (FAILED(hr))
 	{
 		AfxMessageBox(_T("×é¼þ×¢²áÊ§°Ü£¡"));
@@ -164,18 +164,28 @@ void CtestImageXDoc::OnFileOpen()
 		m_pImage->GetBandNum(&m_nBandNum);
 		m_pImage->GetCols(&m_nWidth);
 		m_pImage->GetRows(&m_nHeight);
+
+		m_nHeight = 5000;
+		m_nWidth = 5000;
+
 		if (m_pBuf != NULL)
 		{
 			delete []m_pBuf;
 			m_pBuf = NULL;
 		}
-		m_pBuf = new BYTE[m_nWidth*m_nHeight*3];
+		m_pBuf = new BYTE[m_nWidth*m_nHeight*m_nBandNum];
+
+		//m_pImage->ReadImg(13883, 1, 16383, 2501, m_pBuf, 5000, 5000, 1, 0, 0, 2500, 2500, -1, 0);
+
+		m_pImage->ReadImg(13884, 18454, 18884, 23454, m_pBuf, m_nWidth, m_nHeight, 1, 0, 0,
+			m_nWidth, m_nHeight, 0, 0);
+
+		/*m_pImage->ReadImg(0, 0, m_nWidth, m_nHeight, m_pBuf, 
+		m_nWidth, m_nHeight, 3, 0, 0, m_nWidth, m_nHeight, 0, 2);
 		m_pImage->ReadImg(0, 0, m_nWidth, m_nHeight, m_pBuf, 
-			m_nWidth, m_nHeight, 3, 0, 0, m_nWidth, m_nHeight, 0, 2);
+		m_nWidth, m_nHeight, 3, 0, 0, m_nWidth, m_nHeight, 1, 1);
 		m_pImage->ReadImg(0, 0, m_nWidth, m_nHeight, m_pBuf, 
-			m_nWidth, m_nHeight, 3, 0, 0, m_nWidth, m_nHeight, 1, 1);
-		m_pImage->ReadImg(0, 0, m_nWidth, m_nHeight, m_pBuf, 
-			m_nWidth, m_nHeight, 3, 0, 0, m_nWidth, m_nHeight, 2, 0);
+		m_nWidth, m_nHeight, 3, 0, 0, m_nWidth, m_nHeight, 2, 0);*/
 		m_bIsReady = true;
 		UpdateAllViews(NULL);
 	}
